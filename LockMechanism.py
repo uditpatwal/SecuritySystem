@@ -1,5 +1,5 @@
-from  gpiozero import servo
-from time import sleep
+import RPi.GPIO as GPIO
+import time
 
 class Lock:
     
@@ -8,16 +8,23 @@ class Lock:
 
     def __init__(self):
         # Setting the servo to GPIO PIN 18
-        servo = Servo(18)
+        GPIO.setmode(GPIO.BOARD)
+        GPIO.setup(11, GPIO.OUT)
+        self.servo = GPIO.PWM(11, 50)
+        self.servo.start(0)
 
     def lock(self):
         # lock the lock
-        servo.min()
+        self.servo.ChangeDutyCycle(7)
     
     def unlock(self):
         #unlock the lock
-        servo.mid()
-    
+        self.servo.ChangeDutyCycle(2)
+        
+    def stop(self):
+        self.servo.stop()
+        GPIO.cleanup()
+        
 
-    
+   
     
