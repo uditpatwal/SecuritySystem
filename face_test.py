@@ -53,27 +53,30 @@ class Recognizer:
                 pickle.dump(self.known_face_names, n)
         
         
-
+        # Times for how long each of the faces were detected and when they were last detected
+        self.time_of_face_detected = {}
+        self.temp_time_face_detected = {}
         self.face_outputFrame = None
         self.face_name = None
         self.processFrame = True
         self.count = 0
         self.face_locations = []
         self.face_names = []
-        self.isBusy = False
+        self.overall_names = {}
+        self.removeNext = []
+
+
+
     def run(self, inputFrame):
         # Grab a single frame of video
 
         if self.processFrame:
-            self.isBusy = False
             self.processFrame = False
         # Resize frame of video to 1/4 size for faster face recognition processing
             small_frame = cv2.resize(inputFrame, (0, 0), fx=0.25, fy=0.25)
             
             # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
             rgb_small_frame = small_frame[:, :, ::-1]
-
-            # Only process every other frame of video to save time
         
             # Find all the faces and face encodings in the current frame of video
             self.face_locations = face_recognition.face_locations(rgb_small_frame)
@@ -96,15 +99,38 @@ class Recognizer:
                 if matches[best_match_index]:
                     name = self.known_face_names[best_match_index]
                     self.face_name = name
-                self.face_names.append(name)
-            self.isBusy = False
-                #now = datetime.datetime.now().time()
-                #time = now.strftime("%H:%M:%S")
+                self.face_names.append(name) 
+                now = datetime.datetime.now().time()
+                time = now.strftime("%H:%M:%S")
                 #sql_command = sql_insertPerson.format(n = name, t = time)
                 #cursor.execute(sql_command)
                 #print("added person!!!!!")
                 #connection.commit()
-                
+            
+        now = datetime.datetime.now().time()
+        time = now.strftime("%H:%M:%S")
+
+        
+        # Because this loop checks if a person is false BEFORE it is set to false,
+        # main.py will be able to get the false valued person first, and then
+        # the false valued person is removed so it doesnt constantly spam the name
+        for n in self.removeNext:
+            self.temp_time_face_detected.pop(n)
+
+        
+        for n in self.face_names:
+            if n in self.temp_time_face_detected:
+                pass
+            else:
+                self.temp_time_face_detected[n] = [time, -1, True]
+        
+        self.removeNext = []
+        for n in self.temp_time_face_detected:
+            if self.temp_time_face_detected[n][2] and not (n in self.face_names):
+                self.temp_time_face_detected[n] = [self.temp_time_face_detected[n][0], time, False]
+                self.removeNext.append(n)
+        
+
         self.count += 1
         if self.count == 2:
             self.processFrame = True
@@ -148,3 +174,9 @@ class Recognizer:
     
     def getBusy(self):
         return self.isBusy
+    
+    def detectedFaces(self):
+        return len(face_names) > 0
+
+    def getDetectedFaceTimes(self):
+        return self.temp_time_face_detected
