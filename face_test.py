@@ -100,15 +100,15 @@ class Recognizer:
                     name = self.known_face_names[best_match_index]
                     self.face_name = name
                 self.face_names.append(name) 
-                now = datetime.datetime.now().time()
+                now = datetime.datetime.now()
                 time = now.strftime("%H:%M:%S")
                 #sql_command = sql_insertPerson.format(n = name, t = time)
                 #cursor.execute(sql_command)
                 #print("added person!!!!!")
                 #connection.commit()
             
-        now = datetime.datetime.now().time()
-        time = now.strftime("%H:%M:%S")
+        now = datetime.datetime.now()
+        time = now.strftime("%Y-%m-%d %H:%M:%S")
 
         
         # Because this loop checks if a person is false BEFORE it is set to false,
