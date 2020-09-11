@@ -51,6 +51,7 @@ def camera(frame_count):
                 doorLock.unlock()
                 unlockTimer.start()
                 initTimer = False
+                database.addPersonToUnlock(t, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), True)
             elif not unlockTimer.is_alive() and not initTimer:
                 unlockTimer = threading.Timer(5.0, doorLock.lock)
                 initTimer = True
