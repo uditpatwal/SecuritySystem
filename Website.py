@@ -4,10 +4,9 @@ import datetime
 import imutils
 import time
 import cv2
+import flask-login
 from imutils.video import VideoStream
-from flask import Response
-from flask import Flask
-from flask import render_template
+from flask import Response, Flask, render_template, redirect, url_for, request
 
 class Website:
     
@@ -18,7 +17,13 @@ class Website:
         self.name = "No one"
         # lock = threading.Lock()
         # Initialize our Flaskapp
+        self.login_manager = LoginManager()
         self.app = Flask(__name__)
+        self.login_manager.init_app(app)
+
+
+        
+
 
         def generate():
             while True:
@@ -40,10 +45,7 @@ class Website:
                     + bytearray(encodedImage)
                     + b"\r\n"
                 )
-
-        def generateName():
-            while True:
-                yield (self.name)
+        
 
         @self.app.route("/video_feed")
         def video_feed():
@@ -57,6 +59,18 @@ class Website:
         def home():
             return render_template("index.html", content="what are you doing here?")
 
+        # Route for handling the login page logic
+        @self.app.route('/login', methods=['GET', 'POST'])
+        def login():
+            error = None
+            if request.method == 'POST':
+                if request.form['username'] != 'admin' or request.form['password'] != 'admin':
+                    error = 'Invalid Credentials. Please try again.'
+                else:
+                    return redirect(url_for('home'))
+            return render_template('login2.html', error=error)
+
+        
         @self.app.route("/pepperoni")
         def pepperoni():
             return "Hello! Here are some nice pepperonis!"
