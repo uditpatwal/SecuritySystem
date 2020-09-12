@@ -6,10 +6,10 @@ class Database:
         con = sqlite3.connect("database.db")
         c = con.cursor()
 
-        create_table_statement = """CREATE TABLE duration_face_detected (name VARCHAR, time VARCHAR, duration INT);"""
-        create_doorUnlock_table = """CREATE TABLE doorUnlock(name VARCHAR, time VARCHAR, did_doorUnlock BOOLEAN);"""
-        # c.execute(create_table_statement)
-        # c.execute(create_doorUnlock_table)
+        create_table_statement = """CREATE TABLE IF NOT EXISTS duration_face_detected (name VARCHAR, time VARCHAR, duration INT);"""
+        create_doorUnlock_table = """CREATE TABLE IF NOT EXISTS doorUnlock(name VARCHAR, time VARCHAR, did_doorUnlock BOOLEAN);"""
+        c.execute(create_table_statement)
+        c.execute(create_doorUnlock_table)
         con.commit()
         c.close()
         con.close()
