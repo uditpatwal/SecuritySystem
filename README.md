@@ -12,7 +12,6 @@ This is a personal project I have been working on recently during quarantine. I 
 * Constantly Auditing
   * Whose Face was Recognized
   * Whose Face the Door was Unlocked For
-* Time when Door was unlocked and for whom
 * Website
   * User Authentication to watch video stream
   * User Authentication to unlock door remotely
