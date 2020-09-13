@@ -4,7 +4,7 @@ import datetime
 import imutils
 import time
 import cv2
-import flask-login
+import flask_login
 from imutils.video import VideoStream
 from flask import Response, Flask, render_template, redirect, url_for, request
 
@@ -17,13 +17,9 @@ class Website:
         self.name = "No one"
         # lock = threading.Lock()
         # Initialize our Flaskapp
-        self.login_manager = LoginManager()
+        self.login_manager = flask_login.LoginManager()
         self.app = Flask(__name__)
         self.login_manager.init_app(app)
-
-
-        
-
 
         def generate():
             while True:
