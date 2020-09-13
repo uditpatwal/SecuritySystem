@@ -11,22 +11,55 @@ from flask import Response, Flask, render_template, redirect, url_for, request
 class Website:
     
     global app
-
+    users = {'udit@patwal.com' : {'password' : 'secret'}}
     def __init__(self):
         self.outputFrame = None
         self.name = "No one"
         # lock = threading.Lock()
+
         # Initialize our Flaskapp
-        self.login_manager = flask_login.LoginManager()
         self.app = Flask(__name__)
-        self.login_manager.init_app(app)
+        self.app.secret_key = 'my key is super duper uber ultra mega secret' # Please change this key!!!!!!
+        # Initialize login manager for individual users
+        self.login_manager = flask_login.LoginManager()
+        self.login_manager.init_app(self.app)
+        
+
+        
+        class User(flask_login.UserMixin):
+            pass
+
+        
+
+        @self.login_manager.user_loader
+        def user_loader(email):
+            if email not in self.users:
+                return
+
+            user = User()
+
+            user.id = email
+            return user
+
+
+        @self.login_manager.request_loader
+        def request_laoder(request):
+            email = request.form.get('email')
+            if email not in self.users:
+                return
+
+            user = User()
+            user.id = email
+
+            user.is_authenticated = request.form['password'] == self.users[email]['password']
+        
+            return user
 
         def generate():
             while True:
                 # check if the output frame is available, otherwise skip
                 # the iteration of the loop
                 if self.outputFrame is None:
-                    print("shittt")
                     continue
                 # encode the frame in JPEG format
                 (flag, encodedImage) = cv2.imencode(".jpg", self.outputFrame)
@@ -44,6 +77,7 @@ class Website:
         
 
         @self.app.route("/video_feed")
+        @flask_login.login_required
         def video_feed():
             # return the response generated along with the specific media
             # type (mime type)
@@ -55,16 +89,27 @@ class Website:
         def home():
             return render_template("index.html", content="what are you doing here?")
 
+        
         # Route for handling the login page logic
         @self.app.route('/login', methods=['GET', 'POST'])
         def login():
-            error = None
-            if request.method == 'POST':
-                if request.form['username'] != 'admin' or request.form['password'] != 'admin':
-                    error = 'Invalid Credentials. Please try again.'
-                else:
-                    return redirect(url_for('home'))
-            return render_template('login2.html', error=error)
+            if request.method == 'GET':
+                return '''
+                       <form action='login' method='POST'>
+                        <input type='text' name='email' id='email' placeholder='email'/>
+                        <input type='password' name='password' id='password' placeholder='password'/>
+                        <input type='submit' name='submit'/>
+                       </form>
+                       '''
+
+            email = request.form['email']
+            if request.form['password'] == self.users[email]['password']:
+                user = User()
+                user.id = email
+                flask_login.login_user(user)
+                return redirect(url_for('home'))
+
+            return 'Bad login'
 
         
         @self.app.route("/pepperoni")
@@ -72,6 +117,7 @@ class Website:
             return "Hello! Here are some nice pepperonis!"
 
         @self.app.route("/video/")
+        @flask_login.login_required
         def video():
             return render_template("video.html")
 
