@@ -17,14 +17,7 @@ import pickle
 # Get a reference to webcam #0 (the default one)
 class Recognizer:
     def __init__(self):
-        #connection = sqlite3.connect("database.db")
-        #cursor = connection.cursor()
-        #sql_createTables = """ CREATE TABLE person (name VARCHAR, time VARCHAR);"""
-        #sql_insertPerson = """ INSERT INTO person(name, time) values("{n}", "{t}");"""
-        
-        # Camera that captures everything
-        #video_capture = cv2.VideoCapture(0)
-
+       
         # path where our faces are
         self.path = './Pictures/'
         all_pictures = os.listdir(self.path)
@@ -62,7 +55,8 @@ class Recognizer:
         self.count = 0
         self.face_locations = []
         self.face_names = []
-        self.overall_names = {}
+       
+        
         self.removeNext = []
 
 
@@ -100,16 +94,12 @@ class Recognizer:
                     name = self.known_face_names[best_match_index]
                     self.face_name = name
                 self.face_names.append(name) 
-                now = datetime.datetime.now()
-                time = now.strftime("%H:%M:%S")
-                #sql_command = sql_insertPerson.format(n = name, t = time)
-                #cursor.execute(sql_command)
-                #print("added person!!!!!")
-                #connection.commit()
-            
+              
+                
+        
+        
         now = datetime.datetime.now()
-        time = now.strftime("%Y-%m-%d %H:%M:%S")
-
+        
         
         # Because this loop checks if a person is false BEFORE it is set to false,
         # main.py will be able to get the false valued person first, and then
@@ -117,17 +107,16 @@ class Recognizer:
         for n in self.removeNext:
             self.temp_time_face_detected.pop(n)
 
-        
         for n in self.face_names:
             if n in self.temp_time_face_detected:
                 pass
             else:
-                self.temp_time_face_detected[n] = [time, -1, True]
+                self.temp_time_face_detected[n] = [now, -1, True]
         
         self.removeNext = []
         for n in self.temp_time_face_detected:
             if self.temp_time_face_detected[n][2] and not (n in self.face_names):
-                self.temp_time_face_detected[n] = [self.temp_time_face_detected[n][0], time, False]
+                self.temp_time_face_detected[n] = [self.temp_time_face_detected[n][0], now, False]
                 self.removeNext.append(n)
         
 

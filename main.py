@@ -26,32 +26,35 @@ def camera(frame_count):
                 print(str(temp[t][0]) + ", " + str(temp[t][1]) + ", " + str(temp[t][2]))
 
                 # FIX ME: POTENTIAL BUG HERE
+                # This records how long the person was detected for
                 if not temp[t][2]:
-                    time_start_obj = datetime.datetime.strptime(
-                        temp[t][0], "%Y-%m-%d %H:%M:%S"
-                    )
-                    time_stop_obj = datetime.datetime.strptime(
-                        temp[t][1], "%Y-%m-%d %H:%M:%S"
-                    )
+                    time_start_obj = temp[t][0]     
+                    time_stop_obj = temp[t][1]
                     time_elapsed = time_stop_obj - time_start_obj
                     database.addPersonTime(
                         t, temp[t][0], str(time_elapsed.total_seconds())
                     )
+                # Checks how long a current person is being detected for then opens door after specified time
                 else:
-                    time_start_obj = datetime.datetime.strptime(
-                        temp[t][0], "%Y-%m-%d %H:%M:%S"
-                    )
+                    time_start_obj = temp[t][0]
                     time_now_obj = datetime.datetime.now()
                     time_elapsed = time_now_obj - time_start_obj
 
                     if time_elapsed.total_seconds() > 3:
                         print(time_elapsed.total_seconds())
                         foundUnlocker = True
+
+
+            # TODO: Add Admin Override 
+
+            # Door Locking Mechanics
             if foundUnlocker and not unlockTimer.is_alive() and initTimer:
                 doorLock.unlock()
                 unlockTimer.start()
                 initTimer = False
-                database.addPersonToUnlock(t, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), True)
+                database.addPersonToUnlock(
+                    t, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), True
+                )
             elif not unlockTimer.is_alive() and not initTimer:
                 unlockTimer = threading.Timer(5.0, doorLock.lock)
                 initTimer = True
