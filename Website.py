@@ -14,16 +14,17 @@ from wtforms.validators import DataRequired
 
 
 class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    remember_me = BooleanField('Remember Me')
-    submit = SubmitField('Sign In')
+    username = StringField("Username", validators=[DataRequired()])
+    password = PasswordField("Password", validators=[DataRequired()])
+    remember_me = BooleanField("Remember Me")
+    submit = SubmitField("Sign In")
 
 
 class Website:
-    
+
     global app
-    users = {'udit@patwal.com' : {'password' : 'secret'}}
+    users = {"udit@patwal.com": {"password": "secret"}}
+
     def __init__(self):
         self.outputFrame = None
         self.name = "No one"
@@ -35,13 +36,9 @@ class Website:
         # Initialize login manager for individual users
         self.login_manager = flask_login.LoginManager()
         self.login_manager.init_app(self.app)
-        
 
-        
         class User(flask_login.UserMixin):
             pass
-
-        
 
         @self.login_manager.user_loader
         def user_loader(email):
@@ -53,25 +50,25 @@ class Website:
             user.id = email
             return user
 
-
         @self.login_manager.request_loader
         def request_loader(request):
-            email = request.form.get('email')
+            email = request.form.get("email")
             if email not in self.users:
                 return
 
             user = User()
             user.id = email
 
-            user.is_authenticated = request.form['password'] == self.users[email]['password']
-        
+            user.is_authenticated = (
+                request.form["password"] == self.users[email]["password"]
+            )
+
             return user
-        
+
         @self.login_manager.unauthorized_handler
         def unauthorized_handler():
-            flash('You cannot access Videos until logged in')
-            return redirect(url_for('home'))
-
+            flash("You cannot access Videos until logged in")
+            return redirect(url_for("home"))
 
         def generate():
             while True:
@@ -92,7 +89,6 @@ class Website:
                     + bytearray(encodedImage)
                     + b"\r\n"
                 )
-        
 
         @self.app.route("/video_feed")
         @flask_login.login_required
@@ -107,29 +103,29 @@ class Website:
         def home():
             return render_template("index.html", content="what are you doing here?")
 
-        
         # Route for handling the login page logic
-        @self.app.route('/login', methods=['GET', 'POST'])
+        @self.app.route("/login", methods=["GET", "POST"])
         def login():
             form = LoginForm()
             if form.validate_on_submit():
-                flash('Login requested for user {}, remember_me={}'.format(
-                    form.username.data, form.remember_me.data))
+                flash(
+                    "Login requested for user {}, remember_me={}".format(
+                        form.username.data, form.remember_me.data
+                    )
+                )
                 if form.username.data not in self.users:
-                    flash('Invalid username or password')
-                    return redirect(url_for('login'))
-                elif form.password.data == self.users[form.username.data]['password']:
+                    flash("Invalid username or password")
+                    return redirect(url_for("login"))
+                elif form.password.data == self.users[form.username.data]["password"]:
                     user = User()
                     user.id = form.username.data
                     flask_login.login_user(user)
-                    return redirect('/')
+                    return redirect("/")
                 else:
-                    flash('Invalid username or password')
-                    return redirect(url_for('login'))
-            return render_template('login.html', title = 'Sign In', form = form)
-            
+                    flash("Invalid username or password")
+                    return redirect(url_for("login"))
+            return render_template("login.html", title="Sign In", form=form)
 
-        
         @self.app.route("/pepperoni")
         def pepperoni():
             return "Hello! Here are some nice pepperonis!"
