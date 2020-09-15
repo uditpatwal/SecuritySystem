@@ -10,8 +10,8 @@ from Website import Website
 from face_test import Recognizer
 from database import Database
 
-
-def camera(frame_count):
+# Method that continuously runs the door locking program
+def system():
 
     global vs, outputFrame, processFrame, count, name, unlockTimer, initTimer, changeLockState
     try:
@@ -60,7 +60,6 @@ def camera(frame_count):
                 initTimer = True
 
             name = recognizer.getName()
-            web.recieveName(name)
             web.recieveOutputFrame(outputFrame)
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             gray = cv2.GaussianBlur(gray, (7, 7), 0)
@@ -103,36 +102,16 @@ initTimer = True
 unlockTimer = threading.Timer(5.0, doorLock.lock)
 
 # Checks to see if this is the main thread of execution
-if __name__ == "__main__":
-    # construct the argument parser and parse command line arguments
-    ap = argparse.ArgumentParser()
-    ap.add_argument(
-        "-i", "--ip", type=str, required=True, help="ip address of the device"
-    )
-    ap.add_argument(
-        "-o",
-        "--port",
-        type=int,
-        required=True,
-        help="ephemeral port number of the server (1024 to 65535)",
-    )
-    ap.add_argument(
-        "-f",
-        "--frame-count",
-        type=int,
-        default=60,
-        help="# of frames used to construct the background model",
-    )
-    args = vars(ap.parse_args())
-    # start a thread that will perform motion detection
-    t = threading.Thread(target=camera, args=(args["frame_count"],))
-    t.daemon = True
-    t.start()
-    # start the flask app
-    web.app.run(
-        host=args["ip"],
-        port=args["port"],
-        debug=True,
-        threaded=True,
-        use_reloader=False,
-    )
+# start a thread that will perform motion detection
+t = threading.Thread(target = system)
+t.daemon = True
+t.start()
+# start the flask app
+web.app.run(
+    host = '192.168.1.7',
+    port= '5000',
+    debug=True,
+    threaded=True,
+    use_reloader=False,
+)
+

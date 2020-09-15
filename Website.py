@@ -19,6 +19,8 @@ class LoginForm(FlaskForm):
     remember_me = BooleanField("Remember Me")
     submit = SubmitField("Sign In")
 
+class User(flask_login.UserMixin):
+            pass
 
 class Website:
 
@@ -36,10 +38,8 @@ class Website:
         # Initialize login manager for individual users
         self.login_manager = flask_login.LoginManager()
         self.login_manager.init_app(self.app)
-
-        class User(flask_login.UserMixin):
-            pass
-
+       
+         
         @self.login_manager.user_loader
         def user_loader(email):
             if email not in self.users:
