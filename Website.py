@@ -25,6 +25,7 @@ class User(flask_login.UserMixin):
 class Website:
 
     global app
+    ### TODO: DO NOT STORE PASSWORD IN PLAIN TEXT EVER, IMPLEMENT DATABASE - AWS
     users = {"udit@patwal.com": {"password": "secret"}}
 
     def __init__(self):
