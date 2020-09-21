@@ -24,3 +24,5 @@ This is a personal project I have been working on recently during quarantine. I 
 * sqlite3
 * imutils
 * RPi.GPIO
+
+# Currently Migrating the Project to AWS!
